@@ -16,9 +16,8 @@ h1{
     border-style: solid;
 }
 
-
 body {
-    background-color:orange;
+    background-color: orange;
 }
 
 .panelHeight {
@@ -30,9 +29,10 @@ body {
 .list-group-item {
     background-color: orange;
     border: none;
-
 }
 
 #textarea {
     margin-bottom: 10px;
+    width: 100%;
 }
+
