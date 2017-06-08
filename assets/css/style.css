@@ -17,4 +17,22 @@ h1{
 }
 
 
+body {
+    background-color:orange;
+}
 
+.panelHeight {
+    min-height: 312px;
+    border: solid 4px;
+    margin-top: 20px;
+}
+
+.list-group-item {
+    background-color: orange;
+    border: none;
+
+}
+
+#textarea {
+    margin-bottom: 10px;
+}
