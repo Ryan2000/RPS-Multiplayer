@@ -43,6 +43,13 @@ $(document).ready(function(){
 
     });
 
+    var database = firebase.database();
+
+    database.ref().on("value", function(snapshot) {
+        console.log(snapshot);
+
+    });
+
 });
 
 
