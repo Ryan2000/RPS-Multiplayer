@@ -43,7 +43,7 @@ function announcePlayer(myPlayer, playerNum){
 
 //turn switching
 //essentially have 4 browser windows, 2 in each tab
-function runPlayerTurn(currentPlayer, p1, p2, database){
+function runPlayerTurn(currentPlayer, myPlayer, p1, p2, database){
 
     //check if both players have made moves
     if(p1.move != '' && p2.move != ''){
@@ -51,16 +51,25 @@ function runPlayerTurn(currentPlayer, p1, p2, database){
         //update wins/loss
         //reset moves to ''
         //push to db
-    } else if (currentPlayer == myPlayer && myPlayer == p1){
-
-    } else if (currentPlayer != myPlayer && myPlayer == p1){
-
-    } else if (currentPlayer == myPlayer && myPlayer == p2){
-
-    } else if (currentPlayer != myPlayer && myPlayer == p2){
+    } else if (currentPlayer.name == p1.name){
+        highLight('#playerOne', '#playerTwo');
+        if(myPlayer.name == currentPlayer.name) {
+            $('message').text("It's your turn!")
+        }else{
+            $('#message').text("Waiting for " + p1.name + " to choose");
+        }
+    } else if (currentPlayer.name == p2.name){
+        highLight('#playerTwo', '#playerOne');
 
     }
 }
+
+
+function highLight(on, off){
+    $(on).parent().addClass('highlight');
+    $(off).parent().removeClass('highlight');
+}
+
 
 //check for winner
 function checkWinner(p1, p2){
@@ -108,7 +117,7 @@ $(document).ready(function(){
                 playerOne:name, //set to the value in the textbox in html
                 playerTwo: playerTwo.name //set the value to the object (line 60)
             });
-            myPlayer = playerOne;
+
             announcePlayer(myPlayer, 1);
 
 
@@ -119,7 +128,7 @@ $(document).ready(function(){
                 playerOne: playerOne.name, //set the value to the object (line 55)
                 playerTwo: name //set to the value in the textbox in html
             });
-            myPlayer = playerTwo;
+
             announcePlayer(myPlayer, 2);
         }
 
@@ -145,7 +154,10 @@ $(document).ready(function(){
         } else if (myPlayer == playerTwo){
             database.ref().set({
                 playerOne: playerOne.name,
-                playerTwo: ""
+                playerTwo: "",
+                currentPlayer: undefined,
+                p1: undefined,
+                p2: undefined
             })
         }
     });
