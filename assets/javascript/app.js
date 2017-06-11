@@ -19,11 +19,25 @@ firebase.initializeApp(config);
 }
 
 
-function updatePlayerName(selector, name){
+function updatePlayerName(selector, name, group){
     //todo: change the text in selector to equal name
     $(selector).text(name);  //what do we do here to make to replace 'waiting for player x' with name?
-    $( ".list-group-item" ).removeClass( "hidden" );
+    $( group + ' > li' ).removeClass( "hidden" );
 }
+
+
+
+function announcePlayer(myPlayer){
+    //Remove all html
+    $('#messages').empty();
+    //then insert html that reads Hi! [myPlayer.name] you are [player one/two]
+    //create a variable that holds the text
+    var playerMessages = ("Hi " + myPlayer.name + " You are Player " + playerNum);
+
+    //insert html into #messages with your string
+    $('#messages').html(playerMessages);
+}
+
 
 
 //document. ready function to start
@@ -58,7 +72,8 @@ $(document).ready(function(){
                 playerTwo: playerTwo.name
             });
             myPlayer = playerOne;
-            updatePlayerName('#playerOneName', name);
+            announcePlayer(myPlayer, 1);
+
 
 
         } else if (playerTwo.name == ''){
@@ -68,7 +83,7 @@ $(document).ready(function(){
                 playerTwo: name //set to the value in the textbox
             });
             myPlayer = playerTwo;
-            updatePlayerName('#playerTwoName', name);
+            announcePlayer(myPlayer, 2);
         }
 
     });
@@ -105,6 +120,13 @@ $(document).ready(function(){
     database.ref().on("value", function(snapshot) {
         playerOne.name = (snapshot.val().playerOne);
         playerTwo.name = (snapshot.val().playerTwo);
+
+        if(playerOne.name != ''){
+            updatePlayerName('#playerOneName', playerOne.name, '#playerOne');
+        }
+        if(playerTwo.name != ''){
+            updatePlayerName('#playerTwoName', playerTwo.name, '#playerTwo');
+        }
 
     });
 
