@@ -26,12 +26,44 @@ firebase.initializeApp(config);
 $(document).ready(function(){
     startFirebase();
 
+    var playerOne= {
+        name: "",
+        move: ""
+    }
+
+
+    var playerTwo= {
+        name: "",
+        move: ""
+    }
+
+
+
+
+
 //implement click listener
     $('#start').on('click', function() {
         console.log('clicked');
         //get input box "name"
         var name = $("#name").val();
-        console.log(name);
+
+
+
+        //check if playerOne.name is blank
+        if(playerOne.name == '') {
+            //set playerOne to name in firebase db
+            database.ref().set({
+                playerOne:name
+            });
+
+        } else if (playerTwo.name == ''){
+            //set playerTwo to name in firebase db
+            database.ref().set({
+                playerTwo:name
+            });
+
+
+        }
 
     });
 
@@ -46,7 +78,8 @@ $(document).ready(function(){
     var database = firebase.database();
 
     database.ref().on("value", function(snapshot) {
-        console.log(snapshot);
+        playerOne.name(snapshot.val().playerOne);
+        playerTwo.name(snapshot.val().playerTwo);
 
     });
 
