@@ -48,10 +48,7 @@ function runPlayerTurn(currentPlayer, myPlayer, p1, p2, database){
 
     //check if both players have made moves
     if(p1.move != '' && p2.move != ''){
-        //check who wins
-        //update wins/loss
-        //reset moves to ''
-        //push to db
+        checkWinner(p1, p2, currentPlayer, database);
     } else if (currentPlayer.name == p1.name){
         highLight('#playerOne', '#playerTwo');
         if(myPlayer.name == currentPlayer.name) {
@@ -78,13 +75,15 @@ function highLight(on, off){
 
 
 //check for winner
-function checkWinner(p1, p2, currentPlayer){
+function checkWinner(p1, p2, currentPlayer, database){
     if (p1.move == 'Paper' && p2.move == 'Rock'){
         p1.wins++;
         p2.lose++;
     } else if (p1.move == 'Scissor' && p2.move == 'Paper'){
         p1.wins++;
         p2.lose++;
+    } else if (p1.move == p2.move){
+        alert('tie');
     } else {
         p1.lose++;
         p2.wins
@@ -99,12 +98,19 @@ function checkWinner(p1, p2, currentPlayer){
     $('#p2Win').text('Wins ' + p2.wins);
     $('#p2Lose').text('Lose ' + p2.lose);
 
+    var nextPlayer;
+    if(currentPlayer.name == p1.name){
+        nextPlayer = p2;
+    } else {
+        nextPlayer = p1;
+    }
+
     database.ref().set({
-        playerOne: playerOne.name,
-        playerTwo: playerTwo.name,
-        currentPlayer: playerTwo,
-        p1: playerOne,
-        p2: playerTwo
+        playerOne: p1.name,
+        playerTwo: p2.name,
+        currentPlayer: p1,
+        p1: p1,
+        p2: p2
     });
 }
 
@@ -134,9 +140,10 @@ $(document).ready(function(){
 
     var myPlayer;
 
-    $('p1Rock').click(function(){
+    $('#p1Rock').click(function(){
         if(myPlayer.name == playerOne.name){
             myPlayer.move = 'Rock';
+            playerOne.move = 'Rock';
         }
         database.ref().set({
             playerOne: playerOne.name,
@@ -147,9 +154,10 @@ $(document).ready(function(){
         });
     });
 
-    $('p1Paper').click(function(){
+    $('#p1Paper').click(function(){
         if(myPlayer.name == playerOne.name){
             myPlayer.move = 'Paper';
+            playerOne.move = 'Paper';
         }
         database.ref().set({
             playerOne: playerOne.name,
@@ -160,9 +168,10 @@ $(document).ready(function(){
         });
     });
 
-    $('p1Scissors').click(function(){
+    $('#p1Scissors').click(function(){
         if(myPlayer.name == playerOne.name){
             myPlayer.move = 'Scissors';
+            playerOne.move = 'Scissors';
         }
         database.ref().set({
             playerOne: playerOne.name,
@@ -172,9 +181,10 @@ $(document).ready(function(){
             p2: playerTwo
         });
     });
-    $('p2Rock').click(function(){
+    $('#p2Rock').click(function(){
         if(myPlayer.name == playerTwo.name){
             myPlayer.move = 'Rock';
+            playerTwo.move = 'Rock';
         }
         database.ref().set({
             playerOne: playerOne.name,
@@ -184,9 +194,10 @@ $(document).ready(function(){
             p2: playerTwo
         });
     });
-    $('p2Paper').click(function(){
+    $('#p2Paper').click(function(){
         if(myPlayer.name == playerTwo.name){
             myPlayer.move = 'Paper';
+            playerTwo.move = 'Paper';
         }
         database.ref().set({
             playerOne: playerOne.name,
@@ -196,9 +207,10 @@ $(document).ready(function(){
             p2: playerTwo
         });
     });
-    $('p2Scissors').click(function(){
+    $('#p2Scissors').click(function(){
         if(myPlayer.name == playerTwo.name){
             myPlayer.move = 'Scissors';
+            playerTwo.move = 'Scissors';
         }
         database.ref().set({
             playerOne: playerOne.name,
@@ -258,17 +270,11 @@ $(document).ready(function(){
             database.ref().set({
                 playerOne: "",
                 playerTwo: playerTwo.name,
-                currentPlayer: undefined,
-                p1: undefined,
-                p2: undefined
             });
         } else if (myPlayer == playerTwo){
             database.ref().set({
                 playerOne: playerOne.name,
                 playerTwo: "",
-                currentPlayer: undefined,
-                p1: undefined,
-                p2: undefined
             })
         }
     });
@@ -294,7 +300,13 @@ $(document).ready(function(){
 
         var currentPlayer = snapshot.val().currentPlayer;
         var p1 = snapshot.val().p1;
+        if(p1 != undefined){
+            playerOne = p1;
+        }
         var p2 = snapshot.val().p2;
+        if(p2 != undefined){
+            playerTwo = p2;
+        }
 
         if (currentPlayer == undefined){
             if(playerOne.name != '' && playerTwo.name != ''){
@@ -313,7 +325,6 @@ $(document).ready(function(){
         }
     });
 });
-
 
 
 
