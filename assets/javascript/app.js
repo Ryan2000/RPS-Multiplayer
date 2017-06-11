@@ -20,7 +20,6 @@ firebase.initializeApp(config);
 
 
 
-
 //document. ready function to start
 
 $(document).ready(function(){
@@ -39,8 +38,6 @@ $(document).ready(function(){
 
 
 
-
-
 //implement click listener
     $('#start').on('click', function() {
         console.log('clicked');
@@ -55,14 +52,14 @@ $(document).ready(function(){
             database.ref().set({
                 playerOne:name
             });
+            return;
 
         } else if (playerTwo.name == ''){
             //set playerTwo to name in firebase db
             database.ref().set({
                 playerTwo:name
             });
-
-
+            return;
         }
 
     });
@@ -75,11 +72,17 @@ $(document).ready(function(){
 
     });
 
+
+    $(document).unload(function(){
+        //reset playerOne and playerTwo to blank strings
+
+    });
+
     var database = firebase.database();
 
     database.ref().on("value", function(snapshot) {
-        playerOne.name(snapshot.val().playerOne);
-        playerTwo.name(snapshot.val().playerTwo);
+        playerOne.name = (snapshot.val().playerOne);
+        playerTwo.name = (snapshot.val().playerTwo);
 
     });
 
