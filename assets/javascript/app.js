@@ -47,18 +47,18 @@ function announcePlayer(myPlayer, playerNum){
 function runPlayerTurn(currentPlayer, myPlayer, p1, p2, database){
 
     //check if both players have made moves
-    if(p1.move != '' && p2.move != ''){
+    if(p1.move !== '' && p2.move !== ''){
         checkWinner(p1, p2, currentPlayer, database);
-    } else if (currentPlayer.name == p1.name){
+    } else if (currentPlayer.name === p1.name){
         highLight('#playerOne', '#playerTwo');
-        if(myPlayer.name == currentPlayer.name) {
+        if(myPlayer.name === currentPlayer.name) {
             $('#message').text("It's your turn!")
         }else{
             $('#message').text("Waiting for " + p1.name + " to choose");
         }
-    } else if (currentPlayer.name == p2.name){
+    } else if (currentPlayer.name === p2.name){
         highLight('#playerTwo', '#playerOne');
-        if(myPlayer.name == currentPlayer.name) {
+        if(myPlayer.name === currentPlayer.name) {
             $('#message').text("It's your turn!")
         }else{
             $('#message').text("Waiting for " + p2.name + " to choose");
@@ -76,17 +76,15 @@ function highLight(on, off){
 
 //check for winner
 function checkWinner(p1, p2, currentPlayer, database){
-    if (p1.move == 'Paper' && p2.move == 'Rock'){
-        p1.wins++;
-        p2.lose++;
-    } else if (p1.move == 'Scissor' && p2.move == 'Paper'){
-        p1.wins++;
-        p2.lose++;
-    } else if (p1.move == p2.move){
+    if (p1.move === 'Paper' && p2.move === 'Rock'){
+        ++p1.wins;
+    } else if (p1.move === 'Scissor' && p2.move === 'Paper'){
+        ++p1.wins;
+
+    } else if (p1.move === p2.move){
         alert('tie');
     } else {
-        p1.lose++;
-        p2.wins
+        ++p1.lose;
     }
 
     p1.move = '';
@@ -99,7 +97,7 @@ function checkWinner(p1, p2, currentPlayer, database){
     $('#p2Lose').text('Lose ' + p2.lose);
 
     var nextPlayer;
-    if(currentPlayer.name == p1.name){
+    if(currentPlayer.name === p1.name){
         nextPlayer = p2;
     } else {
         nextPlayer = p1;
@@ -141,7 +139,7 @@ $(document).ready(function(){
     var myPlayer;
 
     $('#p1Rock').click(function(){
-        if(myPlayer.name == playerOne.name){
+        if(myPlayer.name === playerOne.name){
             myPlayer.move = 'Rock';
             playerOne.move = 'Rock';
         }
@@ -155,7 +153,7 @@ $(document).ready(function(){
     });
 
     $('#p1Paper').click(function(){
-        if(myPlayer.name == playerOne.name){
+        if(myPlayer.name === playerOne.name){
             myPlayer.move = 'Paper';
             playerOne.move = 'Paper';
         }
@@ -168,8 +166,8 @@ $(document).ready(function(){
         });
     });
 
-    $('#p1Scissors').click(function(){
-        if(myPlayer.name == playerOne.name){
+    $('#p1Scissor').click(function(){
+        if(myPlayer.name === playerOne.name){
             myPlayer.move = 'Scissors';
             playerOne.move = 'Scissors';
         }
@@ -182,7 +180,7 @@ $(document).ready(function(){
         });
     });
     $('#p2Rock').click(function(){
-        if(myPlayer.name == playerTwo.name){
+        if(myPlayer.name === playerTwo.name){
             myPlayer.move = 'Rock';
             playerTwo.move = 'Rock';
         }
@@ -195,7 +193,7 @@ $(document).ready(function(){
         });
     });
     $('#p2Paper').click(function(){
-        if(myPlayer.name == playerTwo.name){
+        if(myPlayer.name === playerTwo.name){
             myPlayer.move = 'Paper';
             playerTwo.move = 'Paper';
         }
@@ -207,8 +205,8 @@ $(document).ready(function(){
             p2: playerTwo
         });
     });
-    $('#p2Scissors').click(function(){
-        if(myPlayer.name == playerTwo.name){
+    $('#p2Scissor').click(function(){
+        if(myPlayer.name === playerTwo.name){
             myPlayer.move = 'Scissors';
             playerTwo.move = 'Scissors';
         }
@@ -227,7 +225,7 @@ $(document).ready(function(){
         var name = $("#name").val();
 
         //check if playerOne.name is blank
-        if(playerOne.name == '') {
+        if(playerOne.name === '') {
             myPlayer = playerOne;
             //set playerOne to name in firebase db
             database.ref().set({
@@ -241,7 +239,7 @@ $(document).ready(function(){
 
 
 
-        } else if (playerTwo.name == ''){
+        } else if (playerTwo.name === ''){
             myPlayer = playerTwo;
             //set playerTwo to name in firebase db
             database.ref().set({
@@ -259,22 +257,35 @@ $(document).ready(function(){
         console.log('send');
         //get input box "info"
         var text = $("#inputID").val();
-        console.log(text);
+
+        var textArea = $('#textarea').val();
+        if(textArea === undefined){
+            textArea === '';
+        }
+
+        database.ref().set({
+            playerOne: playerOne.name,
+            playerTwo: playerTwo.name,
+            currentPlayer: playerOne,
+            p1: playerOne,
+            p2: playerTwo,
+            chat: textArea + '\n' + text
+        });
     });
 
 
     //function to remove player names and reset to blank strings in firebase
     $(window).on('unload', function(){
         //reset playerOne and playerTwo to blank strings
-        if (myPlayer == playerOne){
+        if (myPlayer === playerOne){
             database.ref().set({
                 playerOne: "",
-                playerTwo: playerTwo.name,
+                playerTwo: playerTwo.name
             });
-        } else if (myPlayer == playerTwo){
+        } else if (myPlayer === playerTwo){
             database.ref().set({
                 playerOne: playerOne.name,
-                playerTwo: "",
+                playerTwo: ""
             })
         }
     });
@@ -287,10 +298,10 @@ $(document).ready(function(){
         playerOne.name = (snapshot.val().playerOne);
         playerTwo.name = (snapshot.val().playerTwo);
 
-        if(playerOne.name != ''){
+        if(playerOne.name !== ''){
             updatePlayerName('#playerOneName', playerOne.name, '#playerOne');
         }
-        if(playerTwo.name != ''){
+        if(playerTwo.name !== ''){
             updatePlayerName('#playerTwoName', playerTwo.name, '#playerTwo');
         }
 
@@ -300,16 +311,21 @@ $(document).ready(function(){
 
         var currentPlayer = snapshot.val().currentPlayer;
         var p1 = snapshot.val().p1;
-        if(p1 != undefined){
+        if(p1 !== undefined){
             playerOne = p1;
         }
         var p2 = snapshot.val().p2;
-        if(p2 != undefined){
+        if(p2 !== undefined){
             playerTwo = p2;
         }
 
-        if (currentPlayer == undefined){
-            if(playerOne.name != '' && playerTwo.name != ''){
+        var chat = snapshot.val().chat;
+        if(chat !== undefined){
+            $('#textarea').val(chat);
+        }
+
+        if (currentPlayer === undefined){
+            if(playerOne.name !== '' && playerTwo.name !== ''){
                 database.ref().set({
                     playerOne: playerOne.name,
                     playerTwo: playerTwo.name,
@@ -319,7 +335,7 @@ $(document).ready(function(){
                 });
             }
         } else {
-            if(playerOne.name != '' && playerTwo.name != ''){
+            if(playerOne.name !== '' && playerTwo.name !== ''){
                 runPlayerTurn(currentPlayer, myPlayer, p1, p2, database);
             }
         }
