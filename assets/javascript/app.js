@@ -5,7 +5,7 @@
 //wrap firebase in a function so we can call it
 function startFirebase() {
 // Initialize Firebase
-var config = {
+    var config = {
         apiKey: "AIzaSyDAraVHUUUkR4L0yNE3P2n2jiF2jTNy6Kg",
         authDomain: "rps-multiplayer-e8125.firebaseapp.com",
         databaseURL: "https://rps-multiplayer-e8125.firebaseio.com",
@@ -14,21 +14,40 @@ var config = {
         messagingSenderId: "763015821378"
     };
 
-firebase.initializeApp(config);
+    firebase.initializeApp(config);
 
 }
 
+function firebaseRef(playerOne, playerTwo, currentPlayer, p1, p2) {
+    if(!currentPlayer){ //check for undefined
+        currentPlayer = playerOne; //assign to default value
+    }
+    if(!p1){
+        p1 = playerOne;
+    }
+    if(!p2){
+        p2 = playerTwo;
+    }
+
+    database.ref().set({
+        playerOne: playerOne.name,
+        playerTwo: playerTwo.name,
+        currentPlayer: currentPlayer,
+        p1: p1,
+        p2: p2
+    });
+}
 
 
-function updatePlayerName(selector, name, group){
+function updatePlayerName(selector, name, group) {
     //todo: change the text in selector to equal name
     $(selector).text(name);  //what do we do here to make to replace 'waiting for player x' with name?
-    $( group + ' > li' ).removeClass( "hidden" ); //remove css class hidden
+    $(group + ' > li').removeClass("hidden"); //remove css class hidden
 }
 
 
 //function to announce player
-function announcePlayer(myPlayer, playerNum){
+function announcePlayer(myPlayer, playerNum) {
     //Remove all html, button etc in order to replace with text
     $('#messageRow').empty();
 
@@ -44,23 +63,23 @@ function announcePlayer(myPlayer, playerNum){
 
 //turn switching
 //essentially have 4 browser windows, 2 in each tab
-function runPlayerTurn(currentPlayer, myPlayer, p1, p2, database){
+function runPlayerTurn(currentPlayer, myPlayer, p1, p2, database) {
 
     //check if both players have made moves
-    if(p1.move !== '' && p2.move !== ''){
+    if (p1.move !== '' && p2.move !== '') {
         checkWinner(p1, p2, currentPlayer, database);
-    } else if (currentPlayer.name === p1.name){
+    } else if (currentPlayer.name === p1.name) {
         highLight('#playerOne', '#playerTwo');
-        if(myPlayer.name === currentPlayer.name) {
+        if (myPlayer.name === currentPlayer.name) {
             $('#message').text("It's your turn!")
-        }else{
+        } else {
             $('#message').text("Waiting for " + p1.name + " to choose");
         }
-    } else if (currentPlayer.name === p2.name){
+    } else if (currentPlayer.name === p2.name) {
         highLight('#playerTwo', '#playerOne');
-        if(myPlayer.name === currentPlayer.name) {
+        if (myPlayer.name === currentPlayer.name) {
             $('#message').text("It's your turn!")
-        }else{
+        } else {
             $('#message').text("Waiting for " + p2.name + " to choose");
         }
 
@@ -68,23 +87,34 @@ function runPlayerTurn(currentPlayer, myPlayer, p1, p2, database){
 }
 
 
-function highLight(on, off){
+function highLight(on, off) {
     $(on).parent().addClass('highlight');
     $(off).parent().removeClass('highlight');
 }
 
 
 //check for winner
-function checkWinner(p1, p2, currentPlayer, database){
-    if (p1.move === 'Paper' && p2.move === 'Rock'){
-        ++p1.wins;
+function checkWinner(p1, p2, currentPlayer, database) {
+    if(p1.move === 'Rock' && p2.move === 'Scissor'){
+        p2.wins++;
+        p1.lose++;
+    } else if (p1.move === 'Rock' && p2.move === 'Paper'){
+        p2.wins++;
+        p1.lose++;
+    } else if (p1.move === 'Scissor' && p2.move === 'Rock'){
+        p1.lose++;
+        p2.wins++;
     } else if (p1.move === 'Scissor' && p2.move === 'Paper'){
-        ++p1.wins;
-
+        p1.wins++;
+        p2.lose++;
+    } else if (p1.move === 'Paper' && p2.move === 'Rock'){
+        p1.wins++;
+        p2.lose++;
+    } else if (p1.move === 'Paper' && p2.move === 'Scissors'){
+        p1.lose++;
+        p2.wins++;
     } else if (p1.move === p2.move){
-        alert('tie');
-    } else {
-        ++p1.lose;
+        //TIE: Ignore
     }
 
     p1.move = '';
@@ -97,24 +127,18 @@ function checkWinner(p1, p2, currentPlayer, database){
     $('#p2Lose').text('Lose ' + p2.lose);
 
     var nextPlayer;
-    if(currentPlayer.name === p1.name){
+    if (currentPlayer.name === p1.name) {
         nextPlayer = p2;
     } else {
         nextPlayer = p1;
     }
 
-    database.ref().set({
-        playerOne: p1.name,
-        playerTwo: p2.name,
-        currentPlayer: p1,
-        p1: p1,
-        p2: p2
-    });
+    firebaseRef(playerOne, playerTwo);
 }
 
 
 //document. ready function to start
-$(document).ready(function(){
+$(document).ready(function () {
     startFirebase();
 
 
@@ -143,13 +167,7 @@ $(document).ready(function(){
             myPlayer.move = 'Rock';
             playerOne.move = 'Rock';
         }
-        database.ref().set({
-            playerOne: playerOne.name,
-            playerTwo: playerTwo.name,
-            currentPlayer: playerTwo,
-            p1: playerOne,
-            p2: playerTwo
-        });
+        firebaseRef(playerOne, playerTwo, playerTwo);
     });
 
     $('#p1Paper').click(function(){
@@ -157,89 +175,62 @@ $(document).ready(function(){
             myPlayer.move = 'Paper';
             playerOne.move = 'Paper';
         }
-        database.ref().set({
-            playerOne: playerOne.name,
-            playerTwo: playerTwo.name,
-            currentPlayer: playerTwo,
-            p1: playerOne,
-            p2: playerTwo
-        });
+        firebaseRef(playerOne, playerTwo, playerTwo);
     });
 
-    $('#p1Scissor').click(function(){
+    $('#p1Scissors').click(function(){
         if(myPlayer.name === playerOne.name){
             myPlayer.move = 'Scissors';
             playerOne.move = 'Scissors';
         }
-        database.ref().set({
-            playerOne: playerOne.name,
-            playerTwo: playerTwo.name,
-            currentPlayer: playerTwo,
-            p1: playerOne,
-            p2: playerTwo
-        });
+        firebaseRef(playerOne, playerTwo, playerTwo);
     });
+
     $('#p2Rock').click(function(){
         if(myPlayer.name === playerTwo.name){
             myPlayer.move = 'Rock';
             playerTwo.move = 'Rock';
         }
-        database.ref().set({
-            playerOne: playerOne.name,
-            playerTwo: playerTwo.name,
-            currentPlayer: playerOne,
-            p1: playerOne,
-            p2: playerTwo
-        });
+        firebaseRef(playerOne, playerTwo, playerOne);
+
     });
     $('#p2Paper').click(function(){
         if(myPlayer.name === playerTwo.name){
             myPlayer.move = 'Paper';
             playerTwo.move = 'Paper';
         }
-        database.ref().set({
-            playerOne: playerOne.name,
-            playerTwo: playerTwo.name,
-            currentPlayer: playerOne,
-            p1: playerOne,
-            p2: playerTwo
-        });
+        firebaseRef(playerOne, playerTwo, playerOne);
+
     });
-    $('#p2Scissor').click(function(){
+    $('#p2Scissors').click(function(){
         if(myPlayer.name === playerTwo.name){
             myPlayer.move = 'Scissors';
             playerTwo.move = 'Scissors';
         }
-        database.ref().set({
-            playerOne: playerOne.name,
-            playerTwo: playerTwo.name,
-            currentPlayer: playerOne,
-            p1: playerOne,
-            p2: playerTwo
-        });
+        firebaseRef(playerOne, playerTwo, playerOne);
+
     });
 
 
 //implement click listener
-    $('#start').on('click', function() {
+    $('#start').on('click', function () {
         var name = $("#name").val();
 
         //check if playerOne.name is blank
-        if(playerOne.name === '') {
+        if (playerOne.name === '') {
             myPlayer = playerOne;
             //set playerOne to name in firebase db
             database.ref().set({
                 //important to establish both objects in each statement as to not overwrite
                 //initial issue - overwriting player 1 in Firebase
-                playerOne:name, //set to the value in the textbox in html
+                playerOne: name, //set to the value in the textbox in html
                 playerTwo: playerTwo.name //set the value to the object (line 60)
             });
 
             announcePlayer(myPlayer, 1);
 
 
-
-        } else if (playerTwo.name === ''){
+        } else if (playerTwo.name === '') {
             myPlayer = playerTwo;
             //set playerTwo to name in firebase db
             database.ref().set({
@@ -253,13 +244,13 @@ $(document).ready(function(){
     });
 
 
-    $('#send').on('click', function() {
+    $('#send').on('click', function () {
         console.log('send');
         //get input box "info"
         var text = $("#inputID").val();
 
         var textArea = $('#textarea').val();
-        if(textArea === undefined){
+        if (textArea === undefined) {
             textArea === '';
         }
 
@@ -275,18 +266,20 @@ $(document).ready(function(){
 
 
     //function to remove player names and reset to blank strings in firebase
-    $(window).on('unload', function(){
-        //reset playerOne and playerTwo to blank strings
-        if (myPlayer === playerOne){
-            database.ref().set({
-                playerOne: "",
-                playerTwo: playerTwo.name
-            });
-        } else if (myPlayer === playerTwo){
-            database.ref().set({
-                playerOne: playerOne.name,
-                playerTwo: ""
-            })
+    $(window).on('unload', function () {
+        if (myPlayer) {
+            //reset playerOne and playerTwo to blank strings
+            if (myPlayer.name === playerOne.name) {
+                database.ref().set({
+                    playerOne: "",
+                    playerTwo: playerTwo.name
+                });
+            } else if (myPlayer.name === playerTwo.name) {
+                database.ref().set({
+                    playerOne: playerOne.name,
+                    playerTwo: "",
+                });
+            }
         }
     });
 
@@ -294,14 +287,14 @@ $(document).ready(function(){
     //define firebase as database
     var database = firebase.database();
 
-    database.ref().on("value", function(snapshot) {
+    database.ref().on("value", function (snapshot) {
         playerOne.name = (snapshot.val().playerOne);
         playerTwo.name = (snapshot.val().playerTwo);
 
-        if(playerOne.name !== ''){
+        if (playerOne.name !== '') {
             updatePlayerName('#playerOneName', playerOne.name, '#playerOne');
         }
-        if(playerTwo.name !== ''){
+        if (playerTwo.name !== '') {
             updatePlayerName('#playerTwoName', playerTwo.name, '#playerTwo');
         }
 
@@ -311,31 +304,25 @@ $(document).ready(function(){
 
         var currentPlayer = snapshot.val().currentPlayer;
         var p1 = snapshot.val().p1;
-        if(p1 !== undefined){
+        if (p1 !== undefined) {
             playerOne = p1;
         }
         var p2 = snapshot.val().p2;
-        if(p2 !== undefined){
+        if (p2 !== undefined) {
             playerTwo = p2;
         }
 
         var chat = snapshot.val().chat;
-        if(chat !== undefined){
+        if (chat !== undefined) {
             $('#textarea').val(chat);
         }
 
-        if (currentPlayer === undefined){
-            if(playerOne.name !== '' && playerTwo.name !== ''){
-                database.ref().set({
-                    playerOne: playerOne.name,
-                    playerTwo: playerTwo.name,
-                    currentPlayer: playerOne,
-                    p1: playerOne,
-                    p2: playerTwo
-                });
+        if (currentPlayer === undefined) {
+            if (playerOne.name !== '' && playerTwo.name !== '') {
+                firebaseRef(playerOne, playerTwo);
             }
         } else {
-            if(playerOne.name !== '' && playerTwo.name !== ''){
+            if (playerOne.name !== '' && playerTwo.name !== '') {
                 runPlayerTurn(currentPlayer, myPlayer, p1, p2, database);
             }
         }
